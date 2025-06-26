@@ -31,11 +31,6 @@ extern "C" void app_main(void)
     ESP_ERROR_CHECK(bsp_spiffs_mount());
     ESP_LOGI(TAG, "SPIFFS mount successfully");
 
-#if CONFIG_EXAMPLE_ENABLE_SD_CARD
-    ESP_ERROR_CHECK(bsp_sdcard_mount());
-    ESP_LOGI(TAG, "SD card mount successfully");
-#endif
-
     ESP_ERROR_CHECK(bsp_extra_codec_init());
 
     bsp_display_cfg_t cfg = {
