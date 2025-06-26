@@ -13,14 +13,15 @@
 #include "lvgl.h"
 #include "esp_brookesia.hpp"
 #include "WiFiManager.hpp"
-class AppSettings: public ESP_Brookesia_PhoneApp {
+class AppSettings : public ESP_Brookesia_PhoneApp
+{
 private:
-    TaskHandle_t wifi_scan_handle_task;  // WiFi扫描任务句柄
-    
+    TaskHandle_t wifi_scan_handle_task; // WiFi扫描任务句柄
+
 public:
     AppSettings();
     ~AppSettings();
-    
+
     static void onScreenUnloadEventCallback(lv_event_t *e);
 
     bool run(void);
@@ -30,11 +31,12 @@ public:
     bool init(void) override;
     bool pause(void) override;
     bool resume(void) override;
-    
+
     esp_err_t initWifiUI();
 
 private:
-    typedef enum {
+    typedef enum
+    {
         UI_MAIN_SETTING_INDEX = 0,
         UI_WIFI_SCAN_INDEX,
         UI_WIFI_CONNECT_INDEX,
@@ -45,14 +47,16 @@ private:
         UI_MAX_INDEX,
     } SettingScreenIndex_t;
 
-    typedef enum {
+    typedef enum
+    {
         WIFI_SIGNAL_STRENGTH_NONE = 0,
         WIFI_SIGNAL_STRENGTH_WEAK = 1,
         WIFI_SIGNAL_STRENGTH_MODERATE = 2,
         WIFI_SIGNAL_STRENGTH_GOOD = 3,
     } WifiSignalStrengthLevel_t;
 
-    typedef enum {
+    typedef enum
+    {
         WIFI_CONNECT_HIDE = 0,
         WIFI_CONNECT_RUNNING,
         WIFI_CONNECT_SUCCESS,
@@ -63,8 +67,8 @@ private:
     // UI
     void extraUiInit(void);
     void processWifiConnect(WifiConnectState_t state);
-    void initWifiListButton(lv_obj_t* lv_label_ssid, lv_obj_t* lv_img_wifi_lock, lv_obj_t* lv_wifi_img,
-                              lv_obj_t *lv_wifi_connect, uint8_t* ssid, bool psk, WifiSignalStrengthLevel_t signal_strength);
+    void initWifiListButton(lv_obj_t *lv_label_ssid, lv_obj_t *lv_img_wifi_lock, lv_obj_t *lv_wifi_img,
+                            lv_obj_t *lv_wifi_connect, uint8_t *ssid, bool psk, WifiSignalStrengthLevel_t signal_strength);
     void deinitWifiListButton(void);
     // NVS Parameters
     bool loadNvsParam(void);
@@ -86,21 +90,21 @@ private:
 
     /* Event Handler */
     // WiFi
-    static void wifiEventHandler(void* arg, esp_event_base_t event_base, int32_t event_id, void* event_data);
+    static void wifiEventHandler(void *arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
     /* UI Event Callback */
     // Main
-    static void onScreenLoadEventCallback( lv_event_t * e);
+    static void onScreenLoadEventCallback(lv_event_t *e);
     // WiFi
-    static void onSwitchPanelScreenSettingWiFiSwitchValueChangeEventCallback( lv_event_t * e);
-    static void onButtonWifiListClickedEventCallback(lv_event_t * e);
+    static void onSwitchPanelScreenSettingWiFiSwitchValueChangeEventCallback(lv_event_t *e);
+    static void onButtonWifiListClickedEventCallback(lv_event_t *e);
     static void onKeyboardScreenSettingVerificationClickedEventCallback(lv_event_t *e);
     // Bluetooth
-    static void onSwitchPanelScreenSettingBLESwitchValueChangeEventCallback( lv_event_t * e);
+    static void onSwitchPanelScreenSettingBLESwitchValueChangeEventCallback(lv_event_t *e);
     // Audio
-    static void onSliderPanelVolumeSwitchValueChangeEventCallback( lv_event_t * e);
+    static void onSliderPanelVolumeSwitchValueChangeEventCallback(lv_event_t *e);
     // Brightness
-    static void onSliderPanelLightSwitchValueChangeEventCallback( lv_event_t * e);
+    static void onSliderPanelLightSwitchValueChangeEventCallback(lv_event_t *e);
 
     bool _is_ui_resumed;
     bool _is_ui_del;
@@ -112,13 +116,9 @@ private:
     std::array<lv_obj_t *, UI_MAX_INDEX> _screen_list;
     std::map<std::string, int32_t> _nvs_param_map;
     std::map<std::string, std::string> _nvs_param_map_wifi;
-    const ESP_Brookesia_StatusBar *status_bar; 
+    const ESP_Brookesia_StatusBar *status_bar;
     const ESP_Brookesia_RecentsScreen *backstage;
 
-    void updateWifiIcon();
-
-    bool readWifiCredentialsFromNvs(char *ssid, char *password);
-    bool saveWifiCredentialsToNvs(const char *ssid, const char *password);
     bool autoConnectToSavedWifi();
     int getCurrentWifiRssi();
     bool checkWifiConnection();
