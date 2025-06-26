@@ -1,1 +1,37 @@
-400: Invalid request
+# PlatformIO
+.pio
+*.env
+.env
+
+# LVGL自动生成文件
+/components/**/ui/*.c
+/components/**/ui/*.h
+/components/**/ui/lv_*
+
+# 二进制文件
+*.bin
+*.elf
+*.hex
+
+# 调试文件
+*.log
+*.su
+*.lst
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+
+# ESP-IDF
+sdkconfig
+sdkconfig.old
+build/
+
+# 本地覆盖文件
+local_config.*
+override.*
