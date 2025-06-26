@@ -105,12 +105,7 @@ extern lv_obj_t *ui_Clock_Number; // 时钟数字容器
 
 EventGroupHandle_t s_wifi_event_group;
 
-
-
-
-
-
-
+using WeakAppSettings = std::weak_ptr<AppSettings>;
 
 /* 构造函数 */
 AppSettings::AppSettings() : ESP_Brookesia_PhoneApp("Settings", &img_app_setting, true), // 基类构造：应用名/图标/自动调整可视区
