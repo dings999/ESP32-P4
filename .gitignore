@@ -38,3 +38,5 @@ build/*
 local_config.*
 override.*
 build/.bin_timestamp
+build/.ninja_log
+build/bootloader/.ninja_log
