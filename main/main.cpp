@@ -65,6 +65,4 @@ extern "C" void app_main(void)
     assert((phone->installApp(app_settings) >= 0) && "Failed to begin app_settings");
 
     bsp_display_unlock();
-
-    // test code
 }
