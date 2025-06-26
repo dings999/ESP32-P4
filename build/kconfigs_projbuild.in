@@ -1,0 +1,7 @@
+source "G:/ESPIDF/CODE/v5.4.1/esp-idf/components/bootloader/Kconfig.projbuild"
+source "G:/ESPIDF/CODE/v5.4.1/esp-idf/components/esp_app_format/Kconfig.projbuild"
+source "G:/ESPIDF/CODE/v5.4.1/esp-idf/components/esp_rom/Kconfig.projbuild"
+source "G:/ESPIDF/CODE/v5.4.1/esp-idf/components/esptool_py/Kconfig.projbuild"
+source "G:/ESPIDF/CODE/v5.4.1/esp-idf/components/partition_table/Kconfig.projbuild"
+source "G:/espp4/11_esp_brookesia_phone/main/Kconfig.projbuild"
+source "G:/espp4/11_esp_brookesia_phone/components/apps/Kconfig.projbuild"
