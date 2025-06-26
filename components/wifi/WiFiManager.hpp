@@ -7,66 +7,75 @@
 #include <vector>
 #include <string>
 
-class WiFiManager {
+class WiFiManager
+{
 public:
     using StatusCallback = std::function<void(bool connected)>;
-    using ScanCallback = std::function<void(std::vector<wifi_ap_record_t>&)>;
+    using ScanCallback = std::function<void(std::vector<wifi_ap_record_t> &)>;
     using ConnectCallback = std::function<void(bool success)>;
 
-    enum SignalLevel {
+    enum SignalLevel
+    {
         SIGNAL_NONE = 0,
         SIGNAL_WEAK,
         SIGNAL_MODERATE,
         SIGNAL_GOOD
     };
     EventGroupHandle_t getEventGroup() { return wifi_event_group; }
-    static WiFiManager& getInstance();
-    
+    static WiFiManager &getInstance();
+
     bool init();
-    bool connect(const char* ssid, const char* password, ConnectCallback callback = nullptr);
+    bool connect(const char *ssid, const char *password, ConnectCallback callback = nullptr);
     bool autoConnect(ConnectCallback callback = nullptr);
     bool isConnected();
     void disconnect();
     SignalLevel getSignalLevel();
     SignalLevel getSignalLevel(int rssi);
     bool startScan(ScanCallback callback = nullptr);
-    bool getCurrentApInfo(wifi_ap_record_t* ap_info);
+    bool getCurrentApInfo(wifi_ap_record_t *ap_info);
 
     int getRssi();
-    bool isConnectedTo(const char* ssid);
-    bool saveCredentials(const char* ssid, const char* password);
-    bool loadCredentials(char* ssid, char* password);
-    
+    bool isConnectedTo(const char *ssid);
+    bool saveCredentials(const char *ssid, const char *password);
+    bool loadCredentials(char *ssid, char *password);
+
     void registerStatusCallback(StatusCallback callback);
     bool isScanning() const { return scanning_in_progress; }
+
 private:
-    struct ScanContext {
+    struct ScanContext
+    {
         ScanCallback callback;
         std::vector<wifi_ap_record_t> results;
     };
-    
-    struct ConnectContext {
+
+    struct ConnectContext
+    {
         ConnectCallback callback;
         std::string ssid;
         std::string password;
     };
-    
+
+    bool autoReconnect = false;
+    uint8_t reconnectRetries = 0;
+    uint8_t maxReconnectRetries = 3;
+    uint16_t reconnectInterval = 5000; // ms
+    void startReconnectTimer();
+
     WiFiManager();
     ~WiFiManager();
     bool scanning_in_progress = false;
-    static void wifiEventHandler(void* arg, esp_event_base_t event_base, 
-                               int32_t event_id, void* event_data);
-    static void scanTask(void* arg);
-    static void connectTask(void* arg);
-    
+    static void wifiEventHandler(void *arg, esp_event_base_t event_base,
+                                 int32_t event_id, void *event_data);
+    static void scanTask(void *arg);
+    static void connectTask(void *arg);
+    void setAutoReconnect(bool enable, uint8_t maxRetries = 3, uint16_t retryInterval = 5000);
     StatusCallback status_callback;
     EventGroupHandle_t wifi_event_group;
     char saved_ssid[32];
     char saved_password[64];
-    
+
     static constexpr auto NVS_NAMESPACE = "storage";
     static constexpr auto NVS_KEY_SSID = "ssid";
     static constexpr auto NVS_KEY_PWD = "pwd";
-
-
 };

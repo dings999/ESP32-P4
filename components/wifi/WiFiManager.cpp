@@ -4,36 +4,42 @@
 #include <cstring>
 #include "esp_netif.h"
 #include "setting/app_sntp.h"
-static const char* TAG = "WiFiManager";
+static const char *TAG = "WiFiManager";
 
-typedef enum {
-    WIFI_EVENT_CONNECTED = BIT(0),  // 连接成功标志位
-    WIFI_EVENT_INIT_DONE = BIT(1),  // WiFi初始化完成标志
+typedef enum
+{
+    WIFI_EVENT_CONNECTED = BIT(0),    // 连接成功标志位
+    WIFI_EVENT_INIT_DONE = BIT(1),    // WiFi初始化完成标志
     WIFI_EVENT_UI_INIT_DONE = BIT(2), // UI初始化完成标志
-    WIFI_EVENT_SCANING = BIT(3)     // 扫描中标志
+    WIFI_EVENT_SCANING = BIT(3)       // 扫描中标志
 } wifi_event_id_t;
 
-WiFiManager& WiFiManager::getInstance() {
+WiFiManager &WiFiManager::getInstance()
+{
     static WiFiManager instance;
     return instance;
 }
 
-WiFiManager::WiFiManager() {
+WiFiManager::WiFiManager()
+{
     WiFiManager::init();
-    if (!WiFiManager::autoConnect()) {
+    if (!WiFiManager::autoConnect())
+    {
         ESP_LOGI(TAG, "No saved WiFi credentials, skip auto connect");
     }
+    setAutoReconnect(true, 5, 5000);
 }
 
-WiFiManager::~WiFiManager() {
+WiFiManager::~WiFiManager()
+{
     vEventGroupDelete(wifi_event_group);
 }
 
-bool WiFiManager::init() {
+bool WiFiManager::init()
+{
     ESP_LOGI(TAG, "Initializing WiFi...");
 
-      wifi_event_group = xEventGroupCreate(); // 创建事件组
- 
+    wifi_event_group = xEventGroupCreate(); // 创建事件组
 
     // 网络协议栈初始化
     ESP_ERROR_CHECK(esp_netif_init());
@@ -56,215 +62,308 @@ bool WiFiManager::init() {
     return true;
 }
 
-
-bool WiFiManager::connect(const char* ssid, const char* password, ConnectCallback callback) {
-    if (!ssid || !password) {
+bool WiFiManager::connect(const char *ssid, const char *password, ConnectCallback callback)
+{
+    if (!ssid || !password)
+    {
         ESP_LOGE(TAG, "Invalid SSID or password");
         return false;
     }
-
-    ConnectContext* ctx = new ConnectContext{callback, ssid, password};
+    reconnectRetries = 0;
+    ConnectContext *ctx = new ConnectContext{callback, ssid, password};
     xTaskCreate(connectTask, "wifi_connect", 4096, ctx, 5, nullptr);
     return true;
 }
 
-bool WiFiManager::autoConnect(ConnectCallback callback) {
+bool WiFiManager::autoConnect(ConnectCallback callback)
+{
     char ssid[32] = {0};
     char password[64] = {0};
-    
-    if (!loadCredentials(ssid, password)) {
+
+    if (!loadCredentials(ssid, password))
+    {
         ESP_LOGE(TAG, "No saved WiFi credentials");
         return false;
     }
-    
+
     return connect(ssid, password, callback);
 }
 
-bool WiFiManager::isConnected() {
+bool WiFiManager::isConnected()
+{
     return (xEventGroupGetBits(wifi_event_group) & BIT0) != 0;
 }
 
-void WiFiManager::disconnect() {
+void WiFiManager::disconnect()
+{
     esp_wifi_disconnect();
     xEventGroupClearBits(wifi_event_group, BIT0);
 }
 
-bool WiFiManager::startScan(ScanCallback callback) {
-    ScanContext* ctx = new ScanContext;
+bool WiFiManager::startScan(ScanCallback callback)
+{
+    ScanContext *ctx = new ScanContext;
     ctx->callback = callback;
-    
+
     xTaskCreate(scanTask, "wifi_scan", 6144, ctx, 2, nullptr);
     return true;
 }
 
-bool WiFiManager::getCurrentApInfo(wifi_ap_record_t* ap_info) {
+bool WiFiManager::getCurrentApInfo(wifi_ap_record_t *ap_info)
+{
     return esp_wifi_sta_get_ap_info(ap_info) == ESP_OK;
 }
 
-WiFiManager::SignalLevel WiFiManager::getSignalLevel() {
+WiFiManager::SignalLevel WiFiManager::getSignalLevel()
+{
     wifi_ap_record_t ap_info;
-    if (!getCurrentApInfo(&ap_info)) return SIGNAL_NONE;
-    
-    if (ap_info.rssi > -60) return SIGNAL_GOOD;
-    if (ap_info.rssi > -80) return SIGNAL_MODERATE;
-    if (ap_info.rssi > -100) return SIGNAL_WEAK;
+    if (!getCurrentApInfo(&ap_info))
+        return SIGNAL_NONE;
+
+    if (ap_info.rssi > -60)
+        return SIGNAL_GOOD;
+    if (ap_info.rssi > -80)
+        return SIGNAL_MODERATE;
+    if (ap_info.rssi > -100)
+        return SIGNAL_WEAK;
     return SIGNAL_NONE;
 }
 
-int WiFiManager::getRssi() {
+int WiFiManager::getRssi()
+{
     wifi_ap_record_t ap_info;
-    if (!getCurrentApInfo(&ap_info)) return 0;
+    if (!getCurrentApInfo(&ap_info))
+        return 0;
     return ap_info.rssi;
 }
 
-void WiFiManager::wifiEventHandler(void* arg, esp_event_base_t event_base, 
-                                  int32_t event_id, void* event_data) {
-    WiFiManager* instance = static_cast<WiFiManager*>(arg);
+void WiFiManager::wifiEventHandler(void *arg, esp_event_base_t event_base,
+                                   int32_t event_id, void *event_data)
+{
+    WiFiManager *instance = static_cast<WiFiManager *>(arg);
 
-    if (event_base == WIFI_EVENT) {
-        switch (event_id) {
-            case WIFI_EVENT_STA_CONNECTED:
-                xEventGroupSetBits(instance->wifi_event_group, BIT0);
-                 app_sntp_init(); 
-                ESP_LOGI(TAG, "Connected to AP");
-                if (instance->status_callback) {
-                    instance->status_callback(true);
-                }
-                break;
-            case WIFI_EVENT_STA_DISCONNECTED: {
-                xEventGroupClearBits(instance->wifi_event_group, BIT0);
-                if (instance->status_callback) {
-                    instance->status_callback(false);
-                }
-                break;
+    if (event_base == WIFI_EVENT)
+    {
+        switch (event_id)
+        {
+        case WIFI_EVENT_STA_CONNECTED:
+            xEventGroupSetBits(instance->wifi_event_group, BIT0);
+            app_sntp_init();
+            ESP_LOGI(TAG, "Connected to AP");
+            if (instance->status_callback)
+            {
+                instance->status_callback(true);
             }
-            case WIFI_EVENT_SCAN_DONE:
-                ESP_LOGI(TAG, "WiFi scan completed");
-                break;
+            break;
+        case WIFI_EVENT_STA_DISCONNECTED:
+        {
+            xEventGroupClearBits(instance->wifi_event_group, BIT0);
+            if (instance->status_callback)
+            {
+                instance->status_callback(false);
+            }
+            break;
         }
-    } else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP) {
+        case WIFI_EVENT_SCAN_DONE:
+            ESP_LOGI(TAG, "WiFi scan completed");
+            break;
+        }
+    }
+    else if (event_base == IP_EVENT && event_id == IP_EVENT_STA_GOT_IP)
+    {
         xEventGroupSetBits(instance->wifi_event_group, BIT0);
         ESP_LOGI(TAG, "Got IP address");
     }
 }
 
-void WiFiManager::scanTask(void* arg) {
-    ScanContext* ctx = static_cast<ScanContext*>(arg);
+void WiFiManager::scanTask(void *arg)
+{
+    ScanContext *ctx = static_cast<ScanContext *>(arg);
     uint16_t ap_count = 0;
     std::vector<wifi_ap_record_t> ap_records;
-  
-     WiFiManager& instance = getInstance(); // 获取类实例
-    
+
+    WiFiManager &instance = getInstance(); // 获取类实例
+
     // 设置扫描状态
     instance.scanning_in_progress = true;
 
     esp_wifi_scan_start(nullptr, true);
     ESP_ERROR_CHECK(esp_wifi_scan_get_ap_num(&ap_count));
-    
-    if (ap_count > 0) {
+
+    if (ap_count > 0)
+    {
         ap_records.resize(ap_count);
         uint16_t number = ap_count;
         ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&number, ap_records.data()));
     }
     instance.scanning_in_progress = false;
-    if (ctx->callback) {
+    if (ctx->callback)
+    {
         ctx->callback(ap_records);
     }
-    
+
     delete ctx;
     vTaskDelete(NULL);
 }
 
-
-
-void WiFiManager::connectTask(void* arg) {
-    ConnectContext* ctx = static_cast<ConnectContext*>(arg);
+void WiFiManager::connectTask(void *arg)
+{
+    ConnectContext *ctx = static_cast<ConnectContext *>(arg);
     wifi_config_t wifi_config = {0};
-    
-    strncpy((char*)wifi_config.sta.ssid, ctx->ssid.c_str(), sizeof(wifi_config.sta.ssid) - 1);
-    strncpy((char*)wifi_config.sta.password, ctx->password.c_str(), sizeof(wifi_config.sta.password) - 1);
-    
+
+    strncpy((char *)wifi_config.sta.ssid, ctx->ssid.c_str(), sizeof(wifi_config.sta.ssid) - 1);
+    strncpy((char *)wifi_config.sta.password, ctx->password.c_str(), sizeof(wifi_config.sta.password) - 1);
+
     esp_wifi_disconnect();
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_STA, &wifi_config));
     esp_wifi_connect();
-    
+
     // 等待连接结果
     EventBits_t bits = xEventGroupWaitBits(WiFiManager::getInstance().wifi_event_group,
-                                          BIT0, pdFALSE, pdFALSE, pdMS_TO_TICKS(10000));
-    
-    if (ctx->callback) {
+                                           BIT0, pdFALSE, pdFALSE, pdMS_TO_TICKS(10000));
+
+    if (ctx->callback)
+    {
         ctx->callback((bits & BIT0) != 0);
     }
-    
+
     delete ctx;
     vTaskDelete(NULL);
 }
 
-bool WiFiManager::saveCredentials(const char* ssid, const char* password) {
+bool WiFiManager::saveCredentials(const char *ssid, const char *password)
+{
     nvs_handle_t nvs_handle;
     esp_err_t err;
     bool success = true;
-    
+
     err = nvs_open(NVS_NAMESPACE, NVS_READWRITE, &nvs_handle);
-    if (err != ESP_OK) return false;
+    if (err != ESP_OK)
+        return false;
 
     err = nvs_set_str(nvs_handle, NVS_KEY_SSID, ssid);
-    if (err != ESP_OK) success = false;
+    if (err != ESP_OK)
+        success = false;
 
     err = nvs_set_str(nvs_handle, NVS_KEY_PWD, password);
-    if (err != ESP_OK) success = false;
+    if (err != ESP_OK)
+        success = false;
 
-    if (success) {
+    if (success)
+    {
         nvs_commit(nvs_handle);
         strncpy(saved_ssid, ssid, sizeof(saved_ssid) - 1);
         strncpy(saved_password, password, sizeof(saved_password) - 1);
     }
-    
+
     nvs_close(nvs_handle);
     return success;
 }
 
-bool WiFiManager::loadCredentials(char* ssid, char* password) {
+bool WiFiManager::loadCredentials(char *ssid, char *password)
+{
     nvs_handle_t nvs_handle;
     size_t len = 32;
-    
+
     if (nvs_open(NVS_NAMESPACE, NVS_READONLY, &nvs_handle) != ESP_OK)
         return false;
-    
-    if (nvs_get_str(nvs_handle, NVS_KEY_SSID, ssid, &len) != ESP_OK) {
+
+    if (nvs_get_str(nvs_handle, NVS_KEY_SSID, ssid, &len) != ESP_OK)
+    {
         nvs_close(nvs_handle);
         return false;
     }
-    
+
     len = 64;
-    if (nvs_get_str(nvs_handle, NVS_KEY_PWD, password, &len) != ESP_OK) {
+    if (nvs_get_str(nvs_handle, NVS_KEY_PWD, password, &len) != ESP_OK)
+    {
         nvs_close(nvs_handle);
         return false;
     }
-    
+
     nvs_close(nvs_handle);
     return true;
 }
 
-
-
-WiFiManager::SignalLevel WiFiManager::getSignalLevel(int rssi) {
-    if (rssi > -60) return SIGNAL_GOOD;
-    if (rssi > -80) return SIGNAL_MODERATE;
-    if (rssi > -100) return SIGNAL_WEAK;
+WiFiManager::SignalLevel WiFiManager::getSignalLevel(int rssi)
+{
+    if (rssi > -60)
+        return SIGNAL_GOOD;
+    if (rssi > -80)
+        return SIGNAL_MODERATE;
+    if (rssi > -100)
+        return SIGNAL_WEAK;
     return SIGNAL_NONE;
 }
 
-bool WiFiManager::isConnectedTo(const char* ssid) {
-    if (!isConnected()) {
+bool WiFiManager::isConnectedTo(const char *ssid)
+{
+    if (!isConnected())
+    {
         return false;
     }
-    
+
     wifi_ap_record_t ap_info;
-    if (esp_wifi_sta_get_ap_info(&ap_info) == ESP_OK) {
-        return strncmp((const char*)ap_info.ssid, ssid, sizeof(ap_info.ssid)) == 0;
+    if (esp_wifi_sta_get_ap_info(&ap_info) == ESP_OK)
+    {
+        return strncmp((const char *)ap_info.ssid, ssid, sizeof(ap_info.ssid)) == 0;
     }
     return false;
+}
+
+void WiFiManager::setAutoReconnect(bool enable, uint8_t maxRetries, uint16_t retryInterval)
+{
+    autoReconnect = enable;
+    maxReconnectRetries = maxRetries;
+    reconnectInterval = retryInterval;
+
+    if (enable)
+    {
+        // 注册WiFi事件回调
+        esp_event_handler_instance_t instance;
+        esp_event_handler_instance_register(WIFI_EVENT, ESP_EVENT_ANY_ID, [](void *arg, esp_event_base_t base, int32_t id, void *data)
+                                            {
+                WiFiManager* self = static_cast<WiFiManager*>(arg);
+                if(id == WIFI_EVENT_STA_DISCONNECTED) {
+                    ESP_LOGI(TAG, "WiFi连接断开，尝试自动重连");
+                    self->startReconnectTimer();
+                } }, this, &instance);
+    }
+}
+
+void WiFiManager::startReconnectTimer()
+{
+    if (reconnectRetries >= maxReconnectRetries)
+    {
+        ESP_LOGW(TAG, "达到最大重连次数(%d)，停止自动重连", maxReconnectRetries);
+        return;
+    }
+
+    reconnectRetries++;
+    ESP_LOGI(TAG, "第%d次重连尝试(间隔%ums)...", reconnectRetries, reconnectInterval);
+
+    // 使用定时器延时重连
+    esp_timer_handle_t timer;
+    esp_timer_create_args_t timerArgs = {
+        .callback = [](void *arg)
+        {
+            WiFiManager *self = static_cast<WiFiManager *>(arg);
+            if (self->isConnected())
+                return;
+
+            // 从NVS读取保存的凭证
+            char ssid[32], password[64];
+            if (self->loadCredentials(ssid, password))
+            {
+                self->connect(ssid, password, [](bool success)
+                              {
+                    if(!success) ESP_LOGE(TAG, "自动重连失败"); });
+            }
+        },
+        .arg = this,
+        .name = "wifi_reconnect"};
+    esp_timer_create(&timerArgs, &timer);
+    esp_timer_start_once(timer, reconnectInterval * 1000);
 }
 
 // void WiFiManager::registerStatusCallback(StatusCallback callback) {
@@ -291,7 +390,7 @@ bool WiFiManager::isConnectedTo(const char* ssid) {
 // void WiFiManager::signalMonitorTask(void* arg) {
 //     WiFiManager* instance = static_cast<WiFiManager*>(arg);
 //     int last_level = -1; // 初始化为无效值
-    
+
 //     while (true) {
 //         if (instance->isConnected()) {
 //             ESP_LOGI(TAG, "WiFi signalMonitorTask");
@@ -316,8 +415,7 @@ bool WiFiManager::isConnectedTo(const char* ssid) {
 //             }
 //             last_level = 0;
 //         }
-        
+
 //         vTaskDelay(pdMS_TO_TICKS(5000)); // 3秒检测间隔
 //     }
 // }
-
