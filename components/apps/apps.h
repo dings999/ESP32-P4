@@ -4,3 +4,4 @@
 
 #include "setting/Setting.hpp"
 #include "setting/app_sntp.h"
+#include "homeass/homepage.hpp"
