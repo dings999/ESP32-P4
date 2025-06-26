@@ -49,7 +49,6 @@ extern "C" void app_main(void)
         }};
     lv_display_t *disp = bsp_display_start_with_config(&cfg);
 
-
     bsp_display_backlight_on();
 
     bsp_display_lock(0);
@@ -58,19 +57,14 @@ extern "C" void app_main(void)
     assert(phone != nullptr && "Failed to create phone");
     assert(phone->begin() && "Failed to begin phone");
 
-    WiFiManager& wifi = WiFiManager::getInstance();
+    WiFiManager &wifi = WiFiManager::getInstance();
     UIRefresher::getInstance().init(phone);
-    
+
     AppSettings *app_settings = new AppSettings();
     assert(app_settings != nullptr && "Failed to create app_settings");
     assert((phone->installApp(app_settings) >= 0) && "Failed to begin app_settings");
 
-
     bsp_display_unlock();
 
-
- 
-
-
-
+    // test code
 }
