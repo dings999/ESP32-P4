@@ -8,6 +8,8 @@
 /components/**/ui/*.h
 /components/**/ui/lv_*
 
+managed_components/
+
 # 二进制文件
 *.bin
 *.elf
