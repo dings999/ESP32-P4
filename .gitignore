@@ -32,7 +32,9 @@ Thumbs.db
 # ESP-IDF
 sdkconfig
 sdkconfig.old
-build/*
+build/
+*/build/
+*/*/build/
 
 # 本地覆盖文件
 local_config.*
