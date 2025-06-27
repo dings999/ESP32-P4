@@ -30,5 +30,4 @@ target_compile_options(
         -Wno-attributes
         -Wno-write-strings
     >
-    -DLV_LVGL_H_INCLUDE_SIMPLE
 )

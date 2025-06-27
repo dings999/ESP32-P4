@@ -59,5 +59,9 @@ extern "C" void app_main(void)
     assert(app_settings != nullptr && "Failed to create app_settings");
     assert((phone->installApp(app_settings) >= 0) && "Failed to begin app_settings");
 
+    HomePage *home_page = new HomePage();
+    assert(home_page != nullptr && "Failed to create app_home_page");
+    assert((phone->installApp(home_page) >= 0) && "Failed to begin app_home_page");
+
     bsp_display_unlock();
 }
