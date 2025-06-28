@@ -108,7 +108,7 @@ EventGroupHandle_t s_wifi_event_group;
 using WeakAppSettings = std::weak_ptr<AppSettings>;
 
 /* 构造函数 */
-AppSettings::AppSettings() : ESP_Brookesia_PhoneApp("Settings", &img_app_setting, true), // 基类构造：应用名/图标/自动调整可视区
+AppSettings::AppSettings() : ESP_Brookesia_PhoneApp("设置", &img_app_setting, true), // 基类构造：应用名/图标/自动调整可视区
                              _is_ui_resumed(false),                                      // UI恢复标志初始化为false
                              _is_ui_del(true),                                           // UI删除标志初始化为true（未创建）
                              _screen_index(UI_MAIN_SETTING_INDEX),                       // 当前屏幕索引（主设置页）

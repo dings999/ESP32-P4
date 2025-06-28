@@ -2,7 +2,7 @@
 
 LV_IMG_DECLARE(img_app_homepage);
 // 设置应用图标
-HomePage::HomePage() : ESP_Brookesia_PhoneApp("homepage", &img_app_homepage, true) // 屏幕对象数组初始化为空
+HomePage::HomePage() : ESP_Brookesia_PhoneApp("实验", &img_app_homepage, true) // 屏幕对象数组初始化为空
 {
 }
 

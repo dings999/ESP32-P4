@@ -9,5 +9,9 @@
   "idf.customExtraVars": {
     "IDF_TARGET": "esp32p4"
   },
-  "idf.flashType": "UART"
+  "idf.flashType": "UART",
+  "files.associations": {
+    "font_puhui_16_4.c": "cpp",
+    "font_puhui_20_4.c": "cpp"
+  }
 }
