@@ -7,7 +7,7 @@
 
 #include "core/esp_brookesia_core_type.h"
 #include "assets/esp_brookesia_assets.h"
-#include "cusfont.h"
+#include "assets.h"
 #ifdef __cplusplus
 extern "C"
 {
