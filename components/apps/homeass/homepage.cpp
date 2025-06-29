@@ -1,4 +1,5 @@
 #include "HomePage.hpp"
+#include "ui/homeass_ui.h"     // SquareLine生成的LVGL界面定义
 
 LV_IMG_DECLARE(img_app_homepage);
 // 设置应用图标
@@ -12,6 +13,7 @@ HomePage::~HomePage()
 
 bool HomePage::run(void)
 {
+    ui_homeass_init(); // 初始化SquareLine生成的UI
     // 激活时刷新数据
     return true;
 }

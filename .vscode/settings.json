@@ -12,6 +12,7 @@
   "idf.flashType": "UART",
   "files.associations": {
     "font_puhui_16_4.c": "cpp",
-    "font_puhui_20_4.c": "cpp"
+    "font_puhui_20_4.c": "cpp",
+    "assets.h": "c"
   }
 }

@@ -5,4 +5,3 @@ dependencies:
     
   espressif/esp-brookesia:
     version: "0.4.*"
-

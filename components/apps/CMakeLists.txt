@@ -14,8 +14,12 @@ idf_component_register(
      bsp_extra
      esp-brookesia 
      esp_http_client
-    wifi)
-
+    wifi
+    assets
+    json
+    auth_storage
+    )
+  
 target_compile_options(
     ${COMPONENT_LIB}
     PRIVATE
