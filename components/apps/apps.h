@@ -5,3 +5,4 @@
 #include "setting/Setting.hpp"
 #include "setting/app_sntp.h"
 #include "homeass/HomePage.hpp"
+#include "keytools/keytools.hpp"

@@ -126,7 +126,7 @@ dependencies:
       type: service
     version: 1.1.3
   espressif/esp_serial_slave_link:
-    component_hash: 8c534b7d4986ca0e4c41db71f559492b795ab862f1d15359d7993034696b7bcc
+    component_hash: d8c13c033a7604e9333b5d8ea45e0d6fec908fd552df7db20d33dd8d6916528d
     dependencies:
     - name: idf
       require: private
@@ -134,7 +134,21 @@ dependencies:
     source:
       registry_url: https://components.espressif.com
       type: service
-    version: 1.1.0
+    version: 1.1.0~1
+  espressif/esp_tinyusb:
+    component_hash: 8fd9b59f52f89a40a6b63caf72f7c1389bcc5cd09b4c22a7408835c88fd78737
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    - name: espressif/tinyusb
+      registry_url: https://components.espressif.com
+      require: public
+      version: '>=0.14.2'
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.7.6
   espressif/esp_wifi_remote:
     component_hash: cb5d6fe638e2a1363bbae086c3b65ac6d4704151f982872989f0020e43aa84a8
     dependencies:
@@ -155,6 +169,20 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 0.12.1
+  espressif/tinyusb:
+    component_hash: 10703da2c3cd39a944711ee3d320c6dda54debabf13b4b933a7c90daf102372b
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=5.0'
+    source:
+      registry_url: https://components.espressif.com
+      type: service
+    targets:
+    - esp32s2
+    - esp32s3
+    - esp32p4
+    version: 0.18.0~2
   idf:
     source:
       type: idf
@@ -218,10 +246,11 @@ direct_dependencies:
 - chmorgan/esp-audio-player
 - chmorgan/esp-file-iterator
 - espressif/esp-brookesia
+- espressif/esp_tinyusb
 - espressif/esp_wifi_remote
 - idf
 - lvgl/lvgl
 - waveshare/esp32_p4_wifi6_touch_lcd_4b
-manifest_hash: bb25f8d8f4b39af3ed8abedbd1773186499d6603d80173c0d3e9b695cb0e2f05
+manifest_hash: 430db89510cc2a700e588ea78ba0b38edf14b0af27c7a5ccd72a9df2e83b986b
 target: esp32p4
 version: 2.0.0

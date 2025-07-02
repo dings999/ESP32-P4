@@ -76,5 +76,9 @@ extern "C" void app_main(void)
     assert(home_page != nullptr && "Failed to create app_home_page");
     assert((phone->installApp(home_page) >= 0) && "Failed to begin app_home_page");
 
+    KeyTools *keytools_s = new KeyTools();
+    assert(keytools_s != nullptr && "Failed to create app_key_tools");
+    assert((phone->installApp(keytools_s) >= 0) && "Failed to begin app_key_tools");
+
     bsp_display_unlock();
 }
