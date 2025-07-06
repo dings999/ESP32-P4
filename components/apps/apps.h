@@ -6,3 +6,5 @@
 #include "setting/app_sntp.h"
 #include "homeass/HomePage.hpp"
 #include "keytools/keytools.hpp"
+#include "imageget/ImageGet.hpp"
+#include "sdimage/SDImage.hpp"

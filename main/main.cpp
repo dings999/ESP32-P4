@@ -18,6 +18,7 @@
 #include "dark/stylesheet.h"
 
 
+
 static const char *TAG = "main";
 
 extern "C" void app_main(void)
@@ -34,7 +35,20 @@ extern "C" void app_main(void)
     ESP_ERROR_CHECK(bsp_spiffs_mount());
     ESP_LOGI(TAG, "SPIFFS mount successfully");
 
+    
     ESP_ERROR_CHECK(bsp_extra_codec_init());
+
+    esp_err_t sd_err = bsp_sdcard_mount();
+    if (sd_err == ESP_OK)
+    {
+       ESP_LOGI(TAG, "SD card mount successfully");
+    }
+       else
+   {
+       ESP_LOGW(TAG, "SD card mount failed");
+   }
+
+
 
     bsp_display_cfg_t cfg = {
         .lvgl_port_cfg = ESP_LVGL_PORT_INIT_CONFIG(),
@@ -50,6 +64,8 @@ extern "C" void app_main(void)
     bsp_display_backlight_on();
 
     bsp_display_lock(0);
+
+    lv_png_init();
 
     ESP_Brookesia_Phone *phone = new ESP_Brookesia_Phone();
 
@@ -79,6 +95,16 @@ extern "C" void app_main(void)
     KeyTools *keytools_s = new KeyTools();
     assert(keytools_s != nullptr && "Failed to create app_key_tools");
     assert((phone->installApp(keytools_s) >= 0) && "Failed to begin app_key_tools");
+
+    
+    ImageGet *imageget_s = new ImageGet();
+    assert(imageget_s != nullptr && "Failed to create app_image_get");
+    assert((phone->installApp(imageget_s) >= 0) && "Failed to begin app_image_get");
+
+
+    SDImage *sdimage_s = new SDImage();
+    assert(sdimage_s != nullptr && "Failed to create app_sd_image");
+    assert((phone->installApp(sdimage_s) >= 0) && "Failed to begin app_sd_image");
 
     bsp_display_unlock();
 }

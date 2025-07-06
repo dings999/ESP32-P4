@@ -371,6 +371,8 @@ static unsigned lodepng_buffer_file(unsigned char* out, size_t size, const char*
 
 unsigned lodepng_load_file(unsigned char** out, size_t* outsize, const char* filename) {
   long size = lodepng_filesize(filename);
+  LV_LOG_INFO("Filesize: %d", size);
+  LV_LOG_INFO("Filename: %s", filename);
   if(size < 0) return 78;
   *outsize = (size_t)size;
 

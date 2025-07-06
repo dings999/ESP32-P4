@@ -20,6 +20,10 @@ idf_component_register(
     json
     auth_storage
     esp_tinyusb
+    mbedtls
+    WHOLE_ARCHIVE
+    spiffs
+    FatFs
     )
   
 target_compile_options(

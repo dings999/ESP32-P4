@@ -36,6 +36,8 @@ if(CONFIG_LV_MEM_CUSTOM)
         ${LVGL_LIB} 
         PRIVATE 
             "-DLV_MEM_CUSTOM_ALLOC(x)=heap_caps_malloc(x, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT)"
+            "-DLV_USE_MEM_MONITOR=1"
+            "-DLV_MEM_CUSTOM_REALLOC(ptr, size)=heap_caps_realloc(ptr, size, MALLOC_CAP_SPIRAM)"
     )
 endif()
 

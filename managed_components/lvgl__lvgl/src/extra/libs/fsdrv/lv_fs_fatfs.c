@@ -14,6 +14,9 @@
 /*********************
  *      DEFINES
  *********************/
+#ifdef ESP_PLATFORM
+    #define DIR FF_DIR  /* ESP IDF typedefs `DIR` as `FF_DIR` in its version of ff.h. Use `FF_DIR` in LVGL too */
+#endif
 
 #if LV_FS_FATFS_LETTER == '\0'
     #error "LV_FS_FATFS_LETTER must be an upper case ASCII letter"
@@ -66,9 +69,8 @@ void lv_fs_fatfs_init(void)
     lv_fs_drv_init(&fs_drv);
 
     /*Set up fields...*/
-    fs_drv.letter = LV_FS_FATFS_LETTER;
+    fs_drv.letter = 'A';//LV_FS_FATFS_LETTER'';
     fs_drv.cache_size = LV_FS_FATFS_CACHE_SIZE;
-
     fs_drv.open_cb = fs_open;
     fs_drv.close_cb = fs_close;
     fs_drv.read_cb = fs_read;

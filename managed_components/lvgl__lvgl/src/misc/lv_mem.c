@@ -202,6 +202,7 @@ void * lv_mem_realloc(void * data_p, size_t new_size)
 
     if(data_p == &zero_mem) return lv_mem_alloc(new_size);
 
+
 #if LV_MEM_CUSTOM == 0
     void * new_p = lv_tlsf_realloc(tlsf, data_p, new_size);
 #else
